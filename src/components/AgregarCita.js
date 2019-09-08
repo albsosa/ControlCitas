@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {agregarCitaAction} from '../actions/citasActions'
+import {validarFormularioAction} from '../actions/validarActions';
 import uuid from 'uuid/v4';
 
 
@@ -15,7 +16,11 @@ const AgregarCita = () => {
     //dispatch para ejecutar nuestras acciones 
 
     const dispatch = useDispatch();
-    const agregarNuevaCita = (cita) => dispatch(agregarCitaAction(cita))
+    const agregarNuevaCita = (cita) => dispatch(agregarCitaAction(cita));
+    const validarFormulario = (estado) => dispatch(validarFormularioAction(estado));
+
+    //Acceder al error se utilizaba antes el mapStateToProps en Hooks
+    const error = useSelector((state) => state.error);
 
     //cuando el formulario es enviado
     const submitNuevaCita = e => {
@@ -23,6 +28,15 @@ const AgregarCita = () => {
 
 
         //validar formulario 
+        if(nombre.trim() === '' ||
+           apellido.trim() === '' || 
+           fecha.trim() === '' ||
+           hora.trim() === '' ||
+           sintomas.trim() === ''){
+            validarFormulario(true);
+            return;
+        }
+        validarFormulario(false);
 
         //crear cita
         agregarNuevaCita({
@@ -111,7 +125,7 @@ const AgregarCita = () => {
                 </div>
             </div>
         </form>
-       
+       {error.error ? <div className="alert alert-danger text-center p2">Todos los campos son obligatorios</div> : null}
     </div>
 </div> );
 }
